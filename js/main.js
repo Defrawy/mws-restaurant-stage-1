@@ -138,10 +138,13 @@ fillRestaurantsHTML = (restaurants = self.restaurants) => {
  */
 createRestaurantHTML = (restaurant) => {
   const li = document.createElement('li');
-
+  /* TODO: update this part to add responsive images that match the intended view port width */
+  /* create picture element add the appropriate source elements */
   const image = document.createElement('img');
+  image.alt ="restaurant promotional image";
   image.className = 'restaurant-img';
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
+  //image.srcset = DBHelper.imageUrlForRestaurant(restaurant.replace('.jpg', '-300.jpg 270w'));
   li.append(image);
 
   const name = document.createElement('h1');

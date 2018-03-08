@@ -110,17 +110,22 @@ nav h1 a {
 }
 /* ====================== Restaurant Filtering ====================== */
 .filter-options {
-  width: 100%;
-  height: 50px;
+  width: calc(100%-20px);
+  height: 60px; /* originally 50px*/
   background-color: #3397DB;
   align-items: center;
+  padding: 5px 10px;
+  
 }
 .filter-options h2 {
   color: white;
   font-size: 1rem;
   font-weight: normal;
   line-height: 1;
-  margin: 0 20px;
+  /*margin: 0 2px;
+  margin-left: 10px; /* added */
+  margin-bottom: 5px;
+  margin-left: 20px;
 }
 .filter-options select {
   background-color: white;
@@ -129,9 +134,10 @@ nav h1 a {
   font-size: 11pt;
   height: 35px;
   letter-spacing: 0;
-  margin: 10px;
+  margin: 0 20px;
   padding: 0 10px;
-  width: 200px;
+  width: calc(50% - 50px);
+
 }
 
 /* ====================== Restaurant Listing ====================== */
@@ -154,18 +160,18 @@ nav h1 a {
   min-height: 380px;
   padding: 0 30px 25px;
   text-align: left;
-
-  /* add media quries for this part of the li on different widths */
-  width: 270px;
 }
 #restaurants-list .restaurant-img {
   background-color: #ccc;
   display: block;
   margin: 0;
   max-width: 100%;
-  min-height: 248px;
-  min-width: 100%;
+  /*min-height: 248px;
+  min-width: 100%;*/
+  height: auto;
 }
+
+
 #restaurants-list li h1 {
   color: #f18200;
   font-family: Arial,sans-serif;
@@ -293,7 +299,61 @@ nav h1 a {
 }
 
 /* ====================== My additions start ====================== */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: #BF1722;
+  color: white;
+  padding: 8px;
+  z-index: 100;
+}
+.skip-link:focus {
+  top: 0;
+}
 
+/* responsive main page */
+@media screen and (max-width: 400px) {
+  .filter-options select {
+    width: calc(100% - 50px);
+    margin-bottom: 5px;
+  }
+}
+@media screen and (max-width: 754px) {
+  #restaurants-list li {
+    width: calc(100% - 94px);
+
+  }
+
+  .filter-options {
+    height: 100px; /* originally 50px*/
+  }
+
+  .filter-options select {
+    width: calc(100% - 50px);
+    margin-bottom: 5px;
+  }
+}
+
+@media screen and (min-width: 755px) and (max-width: 1120px) {
+  #restaurants-list li {
+    width: calc(50% - 94px);
+  }
+}
+
+@media screen and (min-width: 1121px) and (max-width: 1600px) {
+  #restaurants-list li {
+    width: calc(33% - 94px);
+  }
+}
+
+@media screen and (min-width: 1601px) {
+  #restaurants-list li {
+    width: calc(25% - 94px);
+  }
+}
+
+/* resturant page makeover */
 .inside .rvw-head {
   background-color: #444;
   display: block;
