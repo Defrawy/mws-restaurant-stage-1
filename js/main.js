@@ -1,8 +1,11 @@
+
 let restaurants,
   neighborhoods,
   cuisines
 var map
 var markers = []
+
+
 
 
 /**
@@ -27,17 +30,32 @@ fetchNeighborhoods = () => {
   });
 }
 
+function test () {
+  console.log('hello');
+}
+
+
 /**
  * Set neighborhoods HTML.
  */
 fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
   const select = document.getElementById('neighborhoods-select');
-  neighborhoods.forEach(neighborhood => {
+  select.addEventListener('onclick', function (e) {
+    console.log(document);
+    
+  });
+  neighborhoods.forEach((neighborhood, i) => {
     const option = document.createElement('option');
     option.innerHTML = neighborhood;
     option.value = neighborhood;
+    
+    option.setAttribute('aria-posinset', i + 1);
+    option.setAttribute('aria-setsize', neighborhoods.length);
+    
+    
     select.append(option);
   });
+  
 }
 
 /**
@@ -62,6 +80,9 @@ fillCuisinesHTML = (cuisines = self.cuisines) => {
 
   cuisines.forEach(cuisine => {
     const option = document.createElement('option');
+    /* added code start. */
+    // option.setAttribute('aria-activedescendant', select);
+    /* added code end. */
     option.innerHTML = cuisine;
     option.value = cuisine;
     select.append(option);
@@ -96,6 +117,11 @@ updateRestaurants = () => {
 
   const cuisine = cSelect[cIndex].value;
   const neighborhood = nSelect[nIndex].value;
+
+  /* added code */
+  // console.log("item changing.");
+  // console.log(neighborhood);
+  // nSelect.setAttribute('aria-activedescendant', neighborhood);
 
   DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, (error, restaurants) => {
     if (error) { // Got an error!
@@ -144,7 +170,7 @@ createRestaurantHTML = (restaurant) => {
   image.alt ="restaurant promotional image";
   image.className = 'restaurant-img';
   image.src = DBHelper.imageUrlForRestaurant(restaurant);
-  //image.srcset = DBHelper.imageUrlForRestaurant(restaurant.replace('.jpg', '-300.jpg 270w'));
+  image.srcset = DBHelper.imageUrlForRestaurant(restaurant).replace('.jpg', '-300.jpg 270w');
   li.append(image);
 
   const name = document.createElement('h1');
@@ -181,3 +207,48 @@ addMarkersToMap = (restaurants = self.restaurants) => {
     self.markers.push(marker);
   });
 }
+
+
+/**
+ * Registering server worker.
+ */
+regSW = () => {
+  
+  if (!navigator.serviceWorker) return; 
+
+  // var main = this; // print this main
+
+  navigator.serviceWorker.register('/sw.js', {scope:'/'}).then(function(reg) {
+    if (!navigator.serviceWorker.controller) {
+      return;
+    }
+
+    if (reg.waiting) {
+      console.log('ready to update');
+      // trigger ui update
+      return;
+    }
+
+    if (reg.installing) {
+      console.log('installing');
+      // wait untile finish installing
+      return;
+    }
+
+    reg.addEventListener('updatefound', function() {
+      console.log('state changed');
+    });
+  });
+
+  // Ensure refresh is only called once.
+  // This works around a bug in "force update on reload".
+  var refreshing;
+  navigator.serviceWorker.addEventListener('controllerchange', function() {
+    if (refreshing) return;
+    window.location.reload();
+    refreshing = true;
+  });
+}
+regSW();
+
+
