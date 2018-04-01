@@ -1,3 +1,4 @@
+/* this and other work files are based on Udacity Mobile Web Developer Nano degree program  */
 
 let restaurants,
   neighborhoods,
