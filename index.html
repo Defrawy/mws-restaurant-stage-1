@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
+<!-- this and other work files are based on Udacity Mobile Web Developer Nano degree program -->
 
 <head>
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -17,16 +19,16 @@
   </header>
 
   <main id="maincontent">
-    <section id="map-container">
+    <section id="map-container" role="application">
       <div id="map"></div>
     </section>
     <section>
       <div id="options" class="filter-options">
         <h2>Filter Results</h2>
-        <select id="neighborhoods-select" name="neighborhoods" aria-role="combobox" onchange="updateRestaurants()">
+        <select id="neighborhoods-select" name="neighborhoods" role="combobox" aria-label="select neighborhood" onchange="updateRestaurants()">
           <option value="all">All Neighborhoods</option>
         </select>
-        <select id="cuisines-select" name="cuisines" aria-role="combobox" onchange="updateRestaurants()">
+        <select id="cuisines-select" name="cuisines" role="combobox" aria-label="select cuisine" onchange="updateRestaurants()">
           <option value="all">All Cuisines</option>
         </select>
       </div>
@@ -38,6 +40,7 @@
   
   <script type="application/javascript" charset="utf-8" src="js/dbhelper.js"></script>
   <script type="application/javascript" charset="utf-8" src="js/main.js"></script>
+  <script type="application/javascript" charset="utf-8" src="reg_sw.js"></script>
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA0DpCPfxz8VsUXwOXLdpf7ydWezTYdibc&libraries=places&callback=initMap"></script>
 
 

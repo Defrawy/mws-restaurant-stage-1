@@ -45,16 +45,14 @@ self.addEventListener('fetch', function(event) {
     }
 
     /* other than images */
-    if (requestUrl.origin === location.origin) {
-    	event.respondWith(
-			caches.match(requestUrl.pathname).then(function(response) {
-				return response || fetch(event.request);
-			})
-    	);
-    }
-
-    
-	
+    // if (requestUrl.origin === location.origin) {
+    	
+    // } 
+    event.respondWith(
+		caches.match(requestUrl.pathname).then(function(response) {
+			return response || fetch(event.request);
+		})
+	);
 });
 
 
