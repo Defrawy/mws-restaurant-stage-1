@@ -12,7 +12,7 @@ showCachedMessages = () => {
   console.log('show cached loading');
   fetchNeighborhoods();
   fetchCuisines();
-  updateRestaurants();
+  // updateRestaurants();
   // console.log(restaurants);
   // resetRestaurants(restaurants);
   // fillRestaurantsHTML();
@@ -217,9 +217,6 @@ addMarkersToMap = (restaurants = self.restaurants) => {
     self.markers.push(marker);
   });
 }
-
-
-
 
 
 

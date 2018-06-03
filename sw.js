@@ -45,7 +45,6 @@ self.addEventListener('activate', function(event) {
 // this would be something like that
 self.addEventListener('fetch', function(event) {
     requestUrl = new URL(event.request.url);
-    console.log(event.request.url);
     if (event.request.url.endsWith('.jpg')) {
       event.respondWith(serveImage(event.request));
       return;
@@ -53,7 +52,7 @@ self.addEventListener('fetch', function(event) {
 
     event.respondWith(
 		caches.match(requestUrl.pathname).then(function(response) {
-			return response || fetch(event.request, {mode: 'cors'});
+			return response || fetch(event.request);
 		})
 	);
 });
@@ -62,9 +61,10 @@ self.addEventListener('fetch', function(event) {
 
 function serveImage(request) {
   var storageUrl = request.url.replace(/-\d*\.jpg$/, '');
+  console.log(storageUrl);
   return caches.open(contentImgsCache).then(function(cache) {
     return cache.match(storageUrl).then(function(response) {
-      var networkFetch = fetch(request, {mode: 'cors'}).then(function(ntResponse) {
+      var networkFetch = fetch(request).then(function(ntResponse) {
         cache.put(storageUrl, ntResponse.clone());
         return ntResponse;
       });
