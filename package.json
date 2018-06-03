@@ -1,0 +1,22 @@
+{
+  "name": "restaurant_review",
+  "version": "1.0.0",
+  "description": "display a set restaurant names and their reviews",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Defrawy/mws-restaurant-stage-1.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Defrawy/mws-restaurant-stage-1/issues"
+  },
+  "homepage": "https://github.com/Defrawy/mws-restaurant-stage-1#readme",
+  "devDependencies": {
+    "gulp-autoprefixer": "^5.0.0"
+  }
+}
