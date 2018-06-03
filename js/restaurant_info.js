@@ -26,6 +26,7 @@ window.initMap = () => {
  * Get current restaurant from page URL.
  */
 fetchRestaurantFromURL = (callback) => {
+  console.log('fetching a restaurant');
   if (self.restaurant) { // restaurant already fetched!
     callback(null, self.restaurant)
     return;
@@ -35,6 +36,7 @@ fetchRestaurantFromURL = (callback) => {
     error = 'No restaurant id in URL'
     callback(error, null);
   } else {
+    console.log('getting a restaurant from db');
     DBHelper.fetchRestaurantById(id, (error, restaurant) => {
       self.restaurant = restaurant;
       if (!restaurant) {
@@ -183,6 +185,7 @@ fillBreadcrumb = (restaurant=self.restaurant) => {
  * Get a parameter by name from page URL.
  */
 getParameterByName = (name, url) => {
+  console.log('getting parameter');
   if (!url)
     url = window.location.href;
   name = name.replace(/[\[\]]/g, '\\$&');
@@ -192,5 +195,6 @@ getParameterByName = (name, url) => {
     return null;
   if (!results[2])
     return '';
+  console.log(decodeURIComponent(results[2].replace(/\+/g, ' ')));
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
