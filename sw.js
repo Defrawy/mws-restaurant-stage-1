@@ -1,4 +1,8 @@
-/* this and other work files are based on Udacity Mobile Web Developer Nano degree program  */
+/* 
+   This and other work files are based on Udacity Mobile Web Developer Nano degree program  
+   many thanks to the whole internet especially StackOverflow which contained solutions to many of my problems. 
+   I've customized those techniques to work on this project.
+ */
 
 var staticCache = 'web-static-v2';
 var contentImgsCache = 'web-content-imgs-v2';
