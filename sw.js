@@ -14,11 +14,11 @@ self.addEventListener('install', function(event) {
 		caches.open(staticCache).then(function(cache) {
 			return cache.addAll(['/',
 				'/restaurant.html',
-				'/css/styles.css',
 				'/js/main.js',
 				'/js/idb.js',
 				'/js/restaurant_info.js',
 				'/sw.js',
+				'manifest.json',
 				'/reg_sw.js',
 				'/js/dbhelper.js']); // the json, main.js, resaurant_info.js, and dphelper.js is not part any more
 		})
@@ -61,7 +61,6 @@ self.addEventListener('fetch', function(event) {
 
 function serveImage(request) {
   var storageUrl = request.url.replace(/-\d*\.jpg$/, '');
-  console.log(storageUrl);
   return caches.open(contentImgsCache).then(function(cache) {
     return cache.match(storageUrl).then(function(response) {
       var networkFetch = fetch(request).then(function(ntResponse) {

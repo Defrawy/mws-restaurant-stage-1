@@ -9,34 +9,26 @@ var markers = []
 
 // start trigger the UI functions from here
 showCachedMessages = () => {
-  console.log('show cached loading');
+
   fetchNeighborhoods();
   fetchCuisines();
-  // updateRestaurants();
-  // console.log(restaurants);
-  // resetRestaurants(restaurants);
-  // fillRestaurantsHTML();
 };
 
 /**
  * Fetch neighborhoods and cuisines as soon as the page is loaded.
  */
 document.addEventListener('DOMContentLoaded', (event) => {
-  console.log('content loaded');
-
   collectData();
-  // showCachedMessages();
-
 });
 
 /**
  * Fetch all neighborhoods and set their HTML.
  */
 fetchNeighborhoods = () => {
-  console.log('fetching neighborhoods');
+  
   DBHelper.fetchNeighborhoods((error, neighborhoods) => {
     if (error) { // Got an error
-      console.error(error);
+      // console.error(error);
       
     } else {
       self.neighborhoods = neighborhoods;
@@ -49,17 +41,17 @@ fetchNeighborhoods = () => {
  * Set neighborhoods HTML.
  */
 fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
-  console.log('fiiling neighborhoods');
   const select = document.getElementById('neighborhoods-select');
-  select.addEventListener('onclick', function (e) {
-    console.log(document);
+  // select.addEventListener('onclick', function (e) {
+  //   console.log(document);
     
-  });
+  // });
   neighborhoods.forEach((neighborhood, i) => {
     const option = document.createElement('option');
     option.innerHTML = neighborhood;
     option.value = neighborhood;
     
+    option.setAttribute('role', 'option');
     option.setAttribute('aria-posinset', i + 1);
     option.setAttribute('aria-setsize', neighborhoods.length);
     
@@ -73,10 +65,9 @@ fillNeighborhoodsHTML = (neighborhoods = self.neighborhoods) => {
  * Fetch all cuisines and set their HTML.
  */
 fetchCuisines = () => {
-  console.log('fetching cuisines');
   DBHelper.fetchCuisines((error, cuisines) => {
     if (error) { // Got an error!
-      console.error(error);
+      // console.error(error);
     } else {
       self.cuisines = cuisines;
       fillCuisinesHTML();
@@ -88,7 +79,6 @@ fetchCuisines = () => {
  * Set cuisines HTML.
  */
 fillCuisinesHTML = (cuisines = self.cuisines) => {
-  console.log('filling cuisines');
   const select = document.getElementById('cuisines-select');
 
   cuisines.forEach(cuisine => {
@@ -134,7 +124,7 @@ updateRestaurants = () => {
 
   DBHelper.fetchRestaurantByCuisineAndNeighborhood(cuisine, neighborhood, (error, restaurants) => {
     if (error) { // Got an error!
-      console.error(error);
+      // console.error(error);
       
     } else {
       resetRestaurants(restaurants);
@@ -162,7 +152,6 @@ resetRestaurants = (restaurants) => {
  * Create all restaurants HTML and add them to the webpage.
  */
 fillRestaurantsHTML = (restaurants = self.restaurants) => {
-  console.log('filling restaurants html.');
   const ul = document.getElementById('restaurants-list');
   restaurants.forEach(restaurant => {
     ul.append(createRestaurantHTML(restaurant));
@@ -223,13 +212,25 @@ addMarkersToMap = (restaurants = self.restaurants) => {
 // open a connection to the server for live updates
 collectData = () => {
   // here I can check if there is some data in the database, or trigger n event to delete all the data.
-  console.log('oppening sockets');
   fetch('http://localhost:1337/restaurants', {mode: 'cors'}).then(function(response) {
     response.text().then(function (text) {
       DBHelper.saveRestaurants(JSON.parse(text));
       showCachedMessages();
     });
   });
+
+  // here I can check if there is some data in the database, or trigger n event to delete all the data.
+  DBHelper.getUnupdatedReviews(function(reviews) {
+    if (!reviews) {
+      fetch('http://localhost:1337/reviews', {mode: 'cors'}).then(function(response) {
+        response.text().then(function (text) {
+          DBHelper.saveReviews(JSON.parse(text));
+        });
+      });    
+    }
+  });
+  
+
 };
 
 

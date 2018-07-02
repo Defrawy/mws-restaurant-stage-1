@@ -43,7 +43,7 @@ article, aside, canvas, details, figcaption, figure, footer, header, hgroup, men
 }
 #footer {
   background-color: #444;
-  color: #aaa;
+  color: #fff;
   font-size: 8pt;
   letter-spacing: 1px;
   padding: 25px 0px 25px;
@@ -120,7 +120,7 @@ nav h1 a {
   
 }
 .filter-options h2 {
-  color: white;
+  color: #000000;
   font-size: 1rem;
   font-weight: normal;
   line-height: 1;
@@ -175,7 +175,7 @@ nav h1 a {
 
 
 #restaurants-list li h1 {
-  color: #f18200;
+  color: #000;
   font-family: Arial,sans-serif;
   font-size: 14pt;
   font-weight: 200;
@@ -191,7 +191,7 @@ nav h1 a {
 #restaurants-list li a {
   background-color: orange;
   border-bottom: 3px solid #eee;
-  color: #fff;
+  color: #000;
   display: inline-block;
   font-size: 10pt;
   margin: 15px 0 0;
@@ -260,7 +260,7 @@ nav h1 a {
   text-transform: uppercase;
   width: 100%;
 }
-#restaurant-container, #reviews-container {
+#restaurant-container, #reviews-container, #form-container {
   border-bottom: 1px solid #d9d9d9;
   border-top: 1px solid #fff;
   width: calc(100% - 20px);
@@ -398,9 +398,19 @@ select:hover, select:focus {
   text-align: right;
   display: inline-block;
   color: gray;
-  width: 50%;
+  width: 40%;
   height: 100%;
 }
+
+/*.inside .menu {
+  background-color: #444;
+  font-size: 10pt;
+  text-align: right;
+  display: inline-block;
+  color: gray;
+  width: 10%;
+  height: 100%;
+}*/
 
 .inside .rating {
   background-color: orange;
@@ -422,16 +432,261 @@ select:hover, select:focus {
 }
 
 
-.toasts{position:absolute;z-index:3;bottom:0;left:0;right:0}
-@media (min-width: 640px){.toasts{bottom:30px;left:30px;right:auto}}
-.toast{color:#fff;background:#323232;padding:14px 24px;padding-right:0;opacity:0;display:-webkit-flex;display:flex}
-@media (min-width: 640px){.toast{min-width:288px;max-width:568px;border-radius:2px}}
-.toast .toast-content{margin-right:48px;-webkit-flex:1;flex:1}
-.toast button{margin:0;margin-right:24px;color:#FF5252;text-transform:uppercase;min-width:-webkit-min-content;min-width:-moz-min-content;min-width:min-content}
-.toast button:focus{outline:none;color:#fff}
+
 
 /* ====================== My additions end ====================== */
 
 #restaurant-hours td {
   color: #666;
+}
+
+
+.inside .menubtn {
+    background-color: #3498DB;
+    color: white;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+}
+
+.inside .menubtn:hover, .dropbtn:focus {
+    background-color: #2980B9;
+}
+
+
+.inside .menu {
+    background-color: #444;
+    font-size: 10pt;
+    text-align: right;
+    display: inline-block;
+    color: gray;
+    width: 10%;
+    height: 100%;
+}
+
+.inside .menu-content {
+    display: none;
+    position: absolute;
+    left: -60px;
+    background-color: #f1f1f1;
+    min-width: 80px;
+    height: auto;
+    overflow: auto;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    z-index: 1;
+}
+
+.inside .menu-content div {
+    border: 1px;
+    color: black;
+    padding: 12px 16px;
+    text-decoration: none;
+    /*display: block;*/
+}
+
+.inside .menu a:hover {background-color: #ddd;}
+
+.inside .show {display: block;}
+
+
+/* The Modal (background) */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgb(0,0,0); /* Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%; /* Could be more or less, depending on screen size */
+}
+
+/* The Close Button */
+.close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close:hover,
+.close:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+
+.window-container {
+  width: 100%;
+  height: 15px;
+  display: inline-block;
+  
+  
+}
+
+
+/*Vertical align helper class*/
+
+.valign {
+  position: absolute;
+  top: 10%;
+  left: calc(100% - 30px);
+  -webkit-transform: translateY(-50%);
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+
+
+/*Styles for Dot Menu*/
+
+.button_container {
+  top: 10px;
+  height: 20px;
+  width: 20px;
+  cursor: pointer;
+  z-index: 1;
+  transition: opacity .25s ease;
+}
+
+.button_container span {
+  background: #121111;
+  border: none;
+  height: 5px;
+  width: 5px;
+  position: absolute;
+  top: 0;
+  left: 10px;
+  transition: all .35s ease;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.button_container:hover {
+  opacity: .7;
+}
+
+.button_container span:nth-of-type(3) {
+  top: 9px;
+}
+
+.button_container span:nth-of-type(4),
+.button_container span:nth-of-type(5) {
+  top: 18px;
+}
+
+.button_container.active .top,
+.button_container.active .bottom {
+  transform: translateX(-10px);
+  background: #ffffff;
+}
+
+.button_container.active .top2,
+.button_container.active .bottom2 {
+  transform: translateX(10px);
+  background: #ffffff;
+}
+
+.button_container.active .middle {
+  background: #ffffff;
+}
+
+
+.modal{
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    padding-top: 100px; /* Location of the box */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    /*background-color: rgb(0,0,0);  Fallback color */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    padding: 30px;
+    margin: auto;
+    box-shadow: 1px 1px 25px rgba(0, 0, 0, 0.35);
+    border-radius: 10px;
+    border: 6px solid #ccc;
+    overflow: auto; /* Enable scroll if needed */
+    border: 1px solid #888;
+    width: 80%;
+    max-height: 300px;
+}
+.modal ul{
+    padding:0;
+    margin:0;
+    list-style:none;
+}
+.modal ul li{
+    display: block;
+    margin-bottom: 10px;
+    min-height: 35px;
+}
+.modal ul li  .field-style{
+    box-sizing: border-box; 
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box; 
+    padding: 8px;
+    outline: none;
+    border: 1px solid #B0CFE0;
+    -webkit-transition: all 0.30s ease-in-out;
+    -moz-transition: all 0.30s ease-in-out;
+    -ms-transition: all 0.30s ease-in-out;
+    -o-transition: all 0.30s ease-in-out;
+
+}.modal ul li  .field-style:focus{
+    box-shadow: 0 0 5px #B0CFE0;
+    border:1px solid #B0CFE0;
+}
+.modal ul li .field-split{
+    width: 100%;
+}
+.modal ul li .field-full{
+    width: 100%;
+}
+.modal ul li input.align-left{
+    float:left;
+}
+.modal ul li input.align-right{
+    float:right;
+}
+.modal ul li textarea{
+    width: 100%;
+    height: 100px;
+}
+.modal ul li input[type="button"], 
+.modal ul li input[type="submit"] {
+    -moz-box-shadow: inset 0px 1px 0px 0px #757575;
+    -webkit-box-shadow: inset 0px 1px 0px 0px #757575;
+    box-shadow: inset 0px 1px 0px 0px #757575;
+    background-color: #888;
+    border: 1px solid #888;
+    display: inline-block;
+    cursor: pointer;
+    color: #FFFFFF;
+    padding: 8px 18px;
+    text-decoration: none;
+    font: 12px Arial, Helvetica, sans-serif;
+}
+.modal ul li input[type="button"]:hover, 
+.modal ul li input[type="submit"]:hover {
+    background: linear-gradient(to bottom, #2D77A2 5%, #337DA8 100%);
+    background-color: #ccc;
 }

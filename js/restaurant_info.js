@@ -1,6 +1,7 @@
 /* this and other work files are based on Udacity Mobile Web Developer Nano degree program  */
 
 let restaurant;
+let reviews;
 var map;
 
 /**
@@ -9,7 +10,7 @@ var map;
 window.initMap = () => {
   fetchRestaurantFromURL((error, restaurant) => {
     if (error) { // Got an error!
-      console.error(error);
+      // console.error(error);
     } else {
       self.map = new google.maps.Map(document.getElementById('map'), {
         zoom: 16,
@@ -20,13 +21,14 @@ window.initMap = () => {
       DBHelper.mapMarkerForRestaurant(self.restaurant, self.map);
     }
   });
+  fetchReviewsFromURL((error, reviews) => {
+  });
 }
 
 /**
  * Get current restaurant from page URL.
  */
 fetchRestaurantFromURL = (callback) => {
-  console.log('fetching a restaurant');
   if (self.restaurant) { // restaurant already fetched!
     callback(null, self.restaurant)
     return;
@@ -36,11 +38,10 @@ fetchRestaurantFromURL = (callback) => {
     error = 'No restaurant id in URL'
     callback(error, null);
   } else {
-    console.log('getting a restaurant from db');
     DBHelper.fetchRestaurantById(id, (error, restaurant) => {
       self.restaurant = restaurant;
       if (!restaurant) {
-        console.error(error);
+        // console.error(error);
         return;
       }
       fillRestaurantHTML();
@@ -48,6 +49,56 @@ fetchRestaurantFromURL = (callback) => {
     });
   }
 }
+
+/**
+ * Get current reviews from page URL.
+ */
+fetchReviewsFromURL = (callback) => {
+  console.log('fetching revidws');
+  if (self.reviews) { // reviews already fetched!
+    callback(null, self.reviews)
+    return;
+  }
+  const id = getParameterByName('id');
+  if (!id) { // no id found in URL
+    error = 'No reviews are avaliable'
+    callback(error, null);
+  } else {
+    DBHelper.fetchReviewsById(id, (error, reviews) => {
+      self.reviews = reviews;
+      if (!reviews) {
+        // console.error(error);
+        return;
+      }
+      fillReviewsHTML();
+      callback(null, reviews)
+    });
+  }
+}
+
+
+/**
+ * Get current reviews from page URL.
+ */
+fetchReviewsLocally = (callback) => {
+  const id = getParameterByName('id');
+  if (!id) { // no id found in URL
+    error = 'No reviews are avaliable'
+    callback(error, null);
+  } else {
+    DBHelper.fetchReviewsByIdAndNotDelete(id, (error, reviews) => {
+      self.reviews = reviews;
+      if (!reviews) {
+        console.error(error);
+        return;
+      }
+      fillReviewsHTML();
+      callback(null, reviews)
+    });
+  }
+}
+
+
 
 /**
  * Create restaurant HTML and add it to the webpage
@@ -92,8 +143,8 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   if (restaurant.operating_hours) {
     fillRestaurantHoursHTML();
   }
-  // fill reviews
-  fillReviewsHTML();
+  // // fill reviews
+  // fillReviewsHTML();
 }
 
 /**
@@ -119,7 +170,8 @@ fillRestaurantHoursHTML = (operatingHours = self.restaurant.operating_hours) => 
 /**
  * Create all reviews HTML and add them to the webpage.
  */
-fillReviewsHTML = (reviews = self.restaurant.reviews) => {
+fillReviewsHTML = (reviews = self.reviews) => {
+  console.log('fill reviews');
   const container = document.getElementById('reviews-container');
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
@@ -147,6 +199,7 @@ createReviewHTML = (review) => {
   const rh = document.createElement('div');
   rh.className += " rvw-head";
 
+
   const name = document.createElement('p');
   name.className += " name";
   name.innerHTML = review.name;
@@ -157,6 +210,157 @@ createReviewHTML = (review) => {
   date.innerHTML = review.date;
   rh.appendChild(date);
 
+  const reviewId = document.createElement('input');
+  reviewId.className += " rvid";
+  reviewId.hidden = true;
+  reviewId.value = review.id;
+
+  rh.appendChild(reviewId);
+
+  const menu = document.createElement('div');
+  menu.className += " window-container valign";
+
+
+  const btnmenu = document.createElement('div');
+  btnmenu.className += " button_container";
+  btnmenu.onclick = (e) => {
+    e.target.nextSibling.classList.toggle("show");
+
+  };
+  var span1 = document.createElement('span');
+  span1.className = 'top';
+  btnmenu.appendChild(span1);
+
+  var span2 = document.createElement('span');
+  span2.className = 'top2';
+  btnmenu.appendChild(span2);
+
+  var span3 = document.createElement('span');
+  span3.className = 'middle';
+  btnmenu.appendChild(span3);
+
+  var span4 = document.createElement('span');
+  span4.className = 'buttom';
+  btnmenu.appendChild(span4);
+  
+  var span5= document.createElement('span');
+  span5.className = 'buttom2';
+  btnmenu.appendChild(span5);
+
+  const itemsContainer = document.createElement('div');
+  itemsContainer.className += " menu-content";
+  itemsContainer.id = review.id;
+
+  const iNew = document.createElement('div');
+  iNew.innerHTML = "NEU";
+
+  iNew.onclick = (e) => {
+    var modal = document.getElementById('submit_review');
+    
+
+    const btn = document.getElementById('b_confirm');
+    btn.value = "New";
+    btn.addEventListener('click', function () {
+      // create the object and pass it the thread
+      // send a message to the running thread with the object :)
+      var temp_review = {}; 
+      var d = new Date();
+      temp_review.createdAt = d.getTime();
+      temp_review.date = d.getTime();
+      temp_review.status = 'new';
+      temp_review.action = 'http://localhost:1337/reviews/';
+      temp_review.id = d.getTime();
+      temp_review.restaurant_id = getParameterByName('id'); 
+      temp_review.method = 'POST';
+      temp_review.name =  document.getElementById("i_name").value;
+      temp_review.rating = document.getElementById("i_rating").value;
+      temp_review.comments = document.getElementById("i_comments").value;
+
+      updateUI(temp_review);
+
+      // close modal
+      modal.style.display = "none";
+    });
+
+    modal.style.display = "block";
+
+  };
+  itemsContainer.appendChild(iNew);
+
+  const iUpdate = document.createElement('div');
+  iUpdate.innerHTML = "UPD";
+  
+  iUpdate.onclick = (e) => {
+    var modal = document.getElementById('submit_review');
+
+    var li = e.target.parentElement.parentElement.parentElement.parentElement;
+    
+    document.getElementById('restaurant_id').value = getParameterByName('id');
+    document.getElementById("i_name").value = li.getElementsByClassName(" name")[0].innerHTML;
+    document.getElementById("i_rating").value  = li.getElementsByClassName(" rating")[0].innerHTML;
+    document.getElementById("i_comments").value = li.getElementsByClassName(" comments")[0].innerHTML;
+
+    
+
+    const btn = document.getElementById('b_confirm');
+    btn.value = "Update";
+    btn.addEventListener('click', function () {
+
+      var temp_review = {}; 
+      
+      temp_review.status = 'update';
+      temp_review.action = `http://localhost:1337/reviews/${li.getElementsByClassName(' rvid')[0].value}`;
+      temp_review.id = li.getElementsByClassName(' rvid')[0].value;
+      // temp_review.createdAt = li.getElementsByClassName(' rvid')[1].value;
+      temp_review.restaurant_id = getParameterByName('id'); 
+      temp_review.method = 'PUT';
+      temp_review.name =  document.getElementById("i_name").value;
+      temp_review.rating = document.getElementById("i_rating").value;
+      temp_review.comments = document.getElementById("i_comments").value;
+
+      updateUI(temp_review);
+      modal.style.display = "none";
+    });
+    modal.style.display = "block";
+  };
+  itemsContainer.appendChild(iUpdate);
+
+  const iDelete = document.createElement('div');
+  iDelete.innerHTML = "DEL";
+  iDelete.onclick = (e) => {
+    var modal = document.getElementById('submit_review');
+
+    var li = e.target.parentElement.parentElement.parentElement.parentElement;
+
+    document.getElementById('restaurant_id').value = getParameterByName('id');
+    document.getElementById('review_id').value = review.id;
+
+    // are you sure u want to delete this post
+    const btn = document.getElementById('b_confirm');
+    btn.value = "Delete";
+    btn.addEventListener('click', function () {
+
+      var temp_review = {}; 
+      temp_review.status = 'delete';
+      temp_review.action = `http://localhost:1337/reviews/${li.getElementsByClassName(' rvid')[0].value}`;
+      temp_review.id = li.getElementsByClassName(' rvid')[0].value;
+      temp_review.restaurant_id = getParameterByName('id'); 
+      temp_review.method = 'DELETE';
+      temp_review.name =  document.getElementById("i_name").value;
+      temp_review.rating = document.getElementById("i_rating").value;
+      temp_review.comments = document.getElementById("i_comments").value;
+
+      updateUI(temp_review);
+      modal.style.display = "none";  
+    });
+    modal.style.display = "block";
+  };
+  itemsContainer.appendChild(iDelete);
+
+  menu.appendChild(btnmenu);
+  menu.appendChild(itemsContainer);
+
+  rh.appendChild(menu);
   li.append(rh);
 
   const rating = document.createElement('p');
@@ -166,7 +370,7 @@ createReviewHTML = (review) => {
 
   const comments = document.createElement('p');
   comments.className += " comments";
-  comments.innerHTML = review.comments;
+  comments.innerHTML = `${review.comments}`;
   li.appendChild(comments);
   return li;
 }
@@ -185,7 +389,7 @@ fillBreadcrumb = (restaurant=self.restaurant) => {
  * Get a parameter by name from page URL.
  */
 getParameterByName = (name, url) => {
-  console.log('getting parameter');
+  
   if (!url)
     url = window.location.href;
   name = name.replace(/[\[\]]/g, '\\$&');
@@ -195,6 +399,29 @@ getParameterByName = (name, url) => {
     return null;
   if (!results[2])
     return '';
-  console.log(decodeURIComponent(results[2].replace(/\+/g, ' ')));
   return decodeURIComponent(results[2].replace(/\+/g, ' '));
 }
+
+updateUI = (review) => {
+  if (review.status == 'new') {
+    DBHelper.saveReview(review);  
+  } 
+
+  if (review.status == 'update' || review.status == 'delete') {
+    DBHelper.deleteReview(review);
+    DBHelper.saveReview(review);  
+  }   
+  document.getElementById('reviews-container').removeChild(document.getElementById('reviews-container').getElementsByTagName('h2')[0]);
+  document.getElementById('reviews-list').innerHTML = '';
+  fetchReviewsLocally((error, reviews) => {
+  }); 
+}
+
+updateUI2 = () => {  
+  document.getElementById('reviews-container').removeChild(document.getElementById('reviews-container').getElementsByTagName('h2')[0]);
+  document.getElementById('reviews-list').innerHTML = '';
+  fetchReviewsLocally((error, reviews) => {
+  }); 
+}
+
+
