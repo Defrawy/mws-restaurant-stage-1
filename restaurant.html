@@ -162,8 +162,17 @@
       $("#theForm").ajaxSubmit({url: review.action,
                                 type: review.method, 
                                 success: function(data) {
+                                  console.log('the new entery');
+                                  console.log(data);
+                                  
+                                  console.log('the old entery');
+                                  console.log(review);
+                                  // remove the old entry
                                   DBHelper.deleteReview(review);
-                                  DBHelper.saveReview(data);
+                                  if (review.status != 'delete') {
+                                    // save the result comming from the server
+                                    DBHelper.saveReview(data);
+                                  }
                                   updateUI2();
                                 }
                               });
@@ -185,16 +194,6 @@
             reviews.forEach(function(review) {
               f(review);
             });
-            // console.log('supposed to be fetching');
-            // fetch('http://localhost:1337/reviews').then(function(response) {
-            //   response.text().then(function (text) {
-            //     console.log(text);
-            //     h.clearReviews(function(t) {
-            //       h.saveReviews(JSON.parse(t));
-            //     }, text);
-            //   });
-            // });
-            // there is a possibility to load the page again
           }
         });
         check(h, f);

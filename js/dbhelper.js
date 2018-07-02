@@ -21,18 +21,18 @@ class DBHelper {
     });
   }
 
-  static openDatabaseWorker() {
-    return idb.open('restaurant_reviews', 6, function(upgradeDb) {
-      var restaurants = upgradeDb.createObjectStore('restaurants', {
-        keyPath: 'id'
-      });
-      var reviews = upgradeDb.createObjectStore('reviews', {
-        keyPath: 'id'
-      });
+  // static openDatabaseWorker() {
+  //   return idb.open('restaurant_reviews', 6, function(upgradeDb) {
+  //     var restaurants = upgradeDb.createObjectStore('restaurants', {
+  //       keyPath: 'id'
+  //     });
+  //     var reviews = upgradeDb.createObjectStore('reviews', {
+  //       keyPath: 'id'
+  //     });
       
-      // temp_reviews.createIndex('by-date', 'date');
-    });
-  }
+  //     // temp_reviews.createIndex('by-date', 'date');
+  //   });
+  // }
 
   /**
    * Select all restaurants.
@@ -90,9 +90,8 @@ class DBHelper {
       });
   }
   static saveReview(temp_review) {
-    return DBHelper.openDatabaseWorker().then(function(db) {
+    return DBHelper.openDatabase().then(function(db) {
         if (!db) return;
-        console.log('Saving review');
         var tx = db.transaction('reviews', 'readwrite');
         var store = tx.objectStore('reviews');
         if (!temp_review.status) {
@@ -112,7 +111,7 @@ class DBHelper {
   }
 
   static saveTempReview(temp_review) {
-    return DBHelper.openDatabaseWorker().then(function(db) {
+    return DBHelper.openDatabase().then(function(db) {
         if (!db) return;
         var tx = db.transaction('temp_reviews', 'readwrite');
         var store = tx.objectStore('temp_reviews');
@@ -125,19 +124,20 @@ class DBHelper {
   }
 
   static deleteReview(review) {
-    return DBHelper.openDatabaseWorker().then(function(db) {
+    return DBHelper.openDatabase().then(function(db) {
         if (!db) return;
+
         var tx = db.transaction('reviews', 'readwrite');
         var store = tx.objectStore('reviews');
-        store.delete(review.id);
+        store.delete(+review.id);
       }).catch(function(error) {
-        // console.log('there is an error saving the data');
+        console.log('there is an error deleting the data');
         console.log(error);
       });
   }
 
   static deleteTempReview(temp_review) {
-    return DBHelper.openDatabaseWorker().then(function(db) {
+    return DBHelper.openDatabase().then(function(db) {
         if (!db) return;
         var tx = db.transaction('reviews', 'readwrite');
         var store = tx.objectStore('reviews');
@@ -150,7 +150,7 @@ class DBHelper {
   }
 
   static clearReviews(callback, text) {
-    return DBHelper.openDatabaseWorker().then(function(db) {
+    return DBHelper.openDatabase().then(function(db) {
         if (!db) return;
         var tx = db.transaction('reviews', 'readwrite');
         var store = tx.objectStore('reviews');
@@ -233,6 +233,7 @@ class DBHelper {
 
       return objectStore.getAll().then(function (reviews) {
         const rvs = reviews.filter(r => r.restaurant_id == id && r.status != 'delete');
+        console.log(rvs);
         callback(null, rvs);
       }).catch(function(error) {
         callback(error, null);

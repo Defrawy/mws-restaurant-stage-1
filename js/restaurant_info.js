@@ -207,7 +207,7 @@ createReviewHTML = (review) => {
   
   const date = document.createElement('p');
   date.className += " date";
-  date.innerHTML = review.date;
+  date.innerHTML = new Date(review.date).toDateString();
   rh.appendChild(date);
 
   const reviewId = document.createElement('input');
@@ -258,18 +258,18 @@ createReviewHTML = (review) => {
     var modal = document.getElementById('submit_review');
     
 
-    const btn = document.getElementById('b_confirm');
+    let btn = document.getElementById('b_confirm');
     btn.value = "New";
-    btn.addEventListener('click', function () {
+    btn.onclick = (e) => {
       // create the object and pass it the thread
       // send a message to the running thread with the object :)
-      var temp_review = {}; 
+      let temp_review = {}; 
       var d = new Date();
+      temp_review.id = d.getTime();
       temp_review.createdAt = d.getTime();
       temp_review.date = d.getTime();
       temp_review.status = 'new';
       temp_review.action = 'http://localhost:1337/reviews/';
-      temp_review.id = d.getTime();
       temp_review.restaurant_id = getParameterByName('id'); 
       temp_review.method = 'POST';
       temp_review.name =  document.getElementById("i_name").value;
@@ -280,7 +280,7 @@ createReviewHTML = (review) => {
 
       // close modal
       modal.style.display = "none";
-    });
+    };
 
     modal.style.display = "block";
 
@@ -297,16 +297,16 @@ createReviewHTML = (review) => {
     
     document.getElementById('restaurant_id').value = getParameterByName('id');
     document.getElementById("i_name").value = li.getElementsByClassName(" name")[0].innerHTML;
-    document.getElementById("i_rating").value  = li.getElementsByClassName(" rating")[0].innerHTML;
+    document.getElementById("i_rating").value  = li.getElementsByClassName(" rating")[0].innerHTML.split(" ")[1];
     document.getElementById("i_comments").value = li.getElementsByClassName(" comments")[0].innerHTML;
 
     
 
-    const btn = document.getElementById('b_confirm');
+    let btn = document.getElementById('b_confirm');
     btn.value = "Update";
-    btn.addEventListener('click', function () {
+    btn.onclick = (e) => {
 
-      var temp_review = {}; 
+      let temp_review = {}; 
       
       temp_review.status = 'update';
       temp_review.action = `http://localhost:1337/reviews/${li.getElementsByClassName(' rvid')[0].value}`;
@@ -320,7 +320,7 @@ createReviewHTML = (review) => {
 
       updateUI(temp_review);
       modal.style.display = "none";
-    });
+    };
     modal.style.display = "block";
   };
   itemsContainer.appendChild(iUpdate);
@@ -333,14 +333,16 @@ createReviewHTML = (review) => {
     var li = e.target.parentElement.parentElement.parentElement.parentElement;
 
     document.getElementById('restaurant_id').value = getParameterByName('id');
-    document.getElementById('review_id').value = review.id;
+    document.getElementById("i_name").value = li.getElementsByClassName(" name")[0].innerHTML;
+    document.getElementById("i_rating").value  = li.getElementsByClassName(" rating")[0].innerHTML.split(" ")[1];
+    document.getElementById("i_comments").value = li.getElementsByClassName(" comments")[0].innerHTML;
 
     // are you sure u want to delete this post
-    const btn = document.getElementById('b_confirm');
+    let btn = document.getElementById('b_confirm');
     btn.value = "Delete";
-    btn.addEventListener('click', function () {
+    btn.onclick = (e) => {
 
-      var temp_review = {}; 
+      let temp_review = {}; 
       temp_review.status = 'delete';
       temp_review.action = `http://localhost:1337/reviews/${li.getElementsByClassName(' rvid')[0].value}`;
       temp_review.id = li.getElementsByClassName(' rvid')[0].value;
@@ -352,7 +354,7 @@ createReviewHTML = (review) => {
 
       updateUI(temp_review);
       modal.style.display = "none";  
-    });
+    };
     modal.style.display = "block";
   };
   itemsContainer.appendChild(iDelete);
@@ -403,14 +405,22 @@ getParameterByName = (name, url) => {
 }
 
 updateUI = (review) => {
+  console.log('called some times');
+  //console.log(review);
   if (review.status == 'new') {
-    DBHelper.saveReview(review);  
+    DBHelper.saveReview(review); 
   } 
 
   if (review.status == 'update' || review.status == 'delete') {
+    // this deleting the old review
+    // but this data when comming form local change
+
+    // delete old entery
     DBHelper.deleteReview(review);
+    // adding the new modified entry
     DBHelper.saveReview(review);  
-  }   
+  } 
+  // DBHelper.saveReview(review);    
   document.getElementById('reviews-container').removeChild(document.getElementById('reviews-container').getElementsByTagName('h2')[0]);
   document.getElementById('reviews-list').innerHTML = '';
   fetchReviewsLocally((error, reviews) => {
