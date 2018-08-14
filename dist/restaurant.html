@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- 
+   This and other work files are based on Udacity Mobile Web Developer Nano degree program  
+   many thanks to the whole internet especially StackOverflow which contained solutions to many of my problems. 
+   I've customized those techniques to work on this project. -->
+ 
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#444444">
+  <!-- Normalize.css for better cross-browser consistency -->
+  <link rel="preconnect" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
+  <!-- Main CSS file -->
+
+  <!-- <link rel="stylesheet" media="screen and (max-width: 400px)" href="css/styles1.css">
+  <link rel="stylesheet" media="screen and (max-width: 754px)" href="css/styles2.css">
+  <link rel="stylesheet" media="screen and (min-width: 755px) and (max-width: 1120px)" href="css/styles3.css">
+  <link rel="stylesheet" media="screen and (min-width: 1121px) and (max-width: 1600px)" href="css/styles4.css">
+  <link rel="stylesheet" media="screen and (min-width: 1601px)" href="css/styles5.css"> -->
+
+  <link rel="stylesheet" href="css/styles.min.css">
+  
+  <link rel="manifest" href="/manifest.json">
+  <title>Restaurant Info</title>
+</head>
+
+<body class="inside">
+  <a href="#restaurant-container" class="skip-link"> would you like to skip the map? </a>
+  <!-- Beginning header -->
+  <header>
+    <!-- Beginning nav -->
+    <nav>
+      <h1><a href="/">Restaurant Reviews</a></h1>
+    </nav>
+    <!-- Beginning breadcrumb -->
+    <ul id="breadcrumb" role='button'>
+      <li><a href="/">Home</a></li>
+    </ul>
+    <!-- End breadcrumb -->
+    <!-- End nav -->
+  </header>
+  <!-- End header -->
+
+  <!-- Beginning main -->
+  <main id="maincontent">
+    <!-- Beginning map -->
+    <section id="map-container" role="application">
+      <div id="map"></div>
+    </section>
+    <!-- End map -->
+    <!-- Beginning restaurant -->
+    <section id="restaurant-container">
+      <h1 id="restaurant-name"></h1>
+      <picture id="restaurant-pic">
+        
+      </picture>
+      
+      <p id="restaurant-cuisine"></p>
+      <p id="restaurant-address"></p>
+      <table id="restaurant-hours"></table>
+    </section>
+    <!-- end restaurant -->
+    <!-- Beginning reviews -->
+    <section id="reviews-container">
+      <ul id="reviews-list"></ul>
+    </section>
+    <!-- End reviews -->
+    <!-- added content for form submitting -->
+    <section>
+      <div id="submit_review" class=" modal">
+        <div class=" modal-content">
+          <span class="close">&times;</span>
+          <input type="text" id="restaurant_id" value="" hidden>
+          <input type="text" id="review_id" value="" hidden>
+          <br>
+          <br>
+          <ul>
+          <li>
+              <input id="i_name" type="text" name="field1" class="field-style field-split align-left" placeholder="Name" />
+              
+          </li>
+          
+          <li>
+          <input id="i_rating" type="text" name="field3" class="field-style field-full align-none" placeholder="Rating" />
+          </li>
+          <li>
+          <textarea id="i_comments" name="field5" class="field-style" placeholder="Comments"></textarea>
+          </li>
+          <li>
+          <input id="b_confirm" type="submit" value="Send Comments" />
+          </li>
+          </ul>
+        </div>
+      </div>
+
+    </section>
+  </main>
+  <!-- End main -->
+
+  <!-- Beginning footer -->
+  <footer id="footer">
+    Copyright (c) 2017 <a href="/"><strong>Restaurant Reviews</strong></a> All Rights Reserved.
+  </footer>
+  <!-- End footer -->
+
+  <!-- Beginning scripts -->
+  <!-- Database helpers -->
+  <script   src="https://code.jquery.com/jquery-3.3.1.min.js"   
+            integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="   
+            crossorigin="anonymous"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.2.2/jquery.form.min.js"></script>
+  </script>
+  <script type="application/javascript" charset="utf-8" src="js/all.js"></script>
+  
+  <!-- registering server worker -->
+  <script type="application/javascript" charset="utf-8" src="reg_sw.js"></script>
+
+
+  <!-- Google Maps -->
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_tKbW6A5pQ-eupxI56myUnHLqYCzOjKo&libraries=places&callback=initMap"></script>
+  <!-- End scripts -->
+
+  <script type="text/javascript">
+    submitForm = (review) => {
+      console.log('this function is being called');
+      let restaurant_id = document.createElement('input');
+      restaurant_id.name = "restaurant_id";
+      restaurant_id.type = 'text';
+      restaurant_id.value = review.restaurant_id;
+      restaurant_id.innerHTML = review.restaurant_id;
+      
+
+      var name = document.createElement('input');
+      name.name = "name";
+      name.type = "text";
+      name.value = review.name;
+      name.innerHTML = review.name;
+      
+
+      var rate = document.createElement('input');
+      rate.name = "rating";
+      rate.type = "text";
+      rate.value = review.rating;
+      rate.innerHTML = review.rating;
+      
+
+      var comments = document.createElement('input');
+      comments.name = "comments";
+      comments.type = "text";
+      comments.value = review.comments;
+      comments.innerHTML = review.comments;
+      
+
+      var form  = document.createElement('form');
+      form.hidden = true;
+      form.id = "theForm";
+      form.role = "form";
+      form.label = `{review.method}`;
+      form.appendChild(restaurant_id);
+      form.appendChild(name);
+      form.appendChild(rate);
+      form.appendChild(comments);
+      
+      document.body.appendChild(form);
+      console.log($("#theForm").ajaxSubmit);
+      $("#theForm").ajaxSubmit({url: review.action,
+                                type: review.method, 
+                                success: function(data) {
+                                  console.log('the new entery');
+                                  console.log(data);
+
+                                  console.log('the old entery');
+                                  console.log(review);
+                                  // remove the old entry
+                                  DBHelper.deleteReview(review);
+                                  if (review.status != 'delete') {
+                                    // save the result comming from the server
+                                    DBHelper.saveReview(data);
+                                  }
+                                  updateUI2();
+                                }
+                              });
+      
+      document.body.removeChild(form);
+
+    }
+  </script>
+  <script id="updateWorker" type="text/javascript">
+    let helper = DBHelper;
+    let submit = submitForm;
+    check = (hh, ff) => {
+      
+      setInterval((h, f) => {
+        // get all records that are not save on the server
+        h.getUnupdatedReviews(function(error, reviews) {
+          //console.log('dbhelper working');
+          if (reviews && reviews.length > 0) {
+            reviews.forEach(function(review) {
+              f(review);
+            });
+          }
+        });
+        check(h, f);
+      }, 60000, hh, ff);
+    }
+    check(helper, submit);
+
+  </script>
+
+  <script type="text/javascript">
+
+    
+    document.getElementsByClassName("close")[0].onclick = () => {
+      document.getElementById('submit_review').style.display = "none";
+    };
+
+    // Close the dropdown if the user clicks outside of it
+    window.onclick = function(e) {
+      var menus = document.getElementsByClassName("menu-content");
+        var i;
+        for (i = 0; i < menus.length; i++) {
+          var openMenu = menus[i];
+          if (openMenu.classList.contains('show') && e.target.nextSibling !== openMenu) {
+            openMenu.classList.remove('show');
+          }
+      }
+      // closing the modal
+      if (event.target == document.getElementById('submit_review')) {
+        event.target.style.display = "none";
+      }
+    }
+    // console.log('starting a worker');
+    // var worker = new Worker('js/task.js');
+
+    
+    // worker.addEventListener('message', function(e) {
+    //   // window.location.reload();
+    //   // I am going to remove all comments and reload them again from the local database
+    //   // once I save a comment
+    //   if (e.data == 'ui_update') {
+    //     document.getElementById('reviews-container').removeChild(document.getElementById('reviews-container').getElementsByTagName('h2')[0]);
+    //     document.getElementById('reviews-list').innerHTML = '';
+    //     fetchReviewsLocally((error, reviews) => {
+          
+    //     });  
+    //   }
+      
+    // }, false); 
+
+    console.log('starting another worker');
+    var blob = new Blob([
+      document.getElementById('updateWorker').textContent
+      ], { type: "text/javascript" }
+    );
+
+    // Note: window.webkitURL.createObjectURL() in Chrome 10+.
+    var updateWorker = new Worker(window.URL.createObjectURL(blob));
+    updateWorker.postMessage('web worker is running');
+    updateWorker.addEventListener('message', function(e) {
+      console.log('some message has been posted');
+    });
+    
+
+  
+
+  </script>
+
+</body>
+
+</html>

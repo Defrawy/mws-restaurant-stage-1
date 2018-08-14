@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<!-- 
+   This and other work files are based on Udacity Mobile Web Developer Nano degree program  
+   many thanks to the whole internet especially StackOverflow which contained solutions to many of my problems. 
+   I've customized those techniques to work on this project. -->
+
+<head>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#444444">
+  <link rel="preconnect" src="//normalize-css.googlecode.com/svn/trunk/normalize.css" />
+  
+  <!-- <link rel="stylesheet" media="screen and (max-width: 400px)" href="css/styles1.css">
+  <link rel="stylesheet" media="screen and (max-width: 754px)" href="css/styles2.css">
+  <link rel="stylesheet" media="screen and (min-width: 755px) and (max-width: 1120px)" href="css/styles3.css">
+  <link rel="stylesheet" media="screen and (min-width: 1121px) and (max-width: 1600px)" href="css/styles4.css">
+  <link rel="stylesheet" media="screen and (min-width: 1601px)" href="css/styles5.css"> -->
+
+  <link rel="stylesheet" href="css/styles.min.css">
+  <link rel="manifest" href="/manifest.json">
+  <title>Restaurant Reviews</title>
+</head>
+
+<body>
+  <a href="#options" class="skip-link"> would you like to skip the map? </a>
+  <header>
+    <nav>
+      <h1><a href="/">Restaurant Reviews</a></h1>
+    </nav>
+  </header>
+
+  <main id="maincontent">
+    <section id="map-container" role="application">
+      <div id="map"></div>
+    </section>
+    <section>
+      <div id="options" class="filter-options">
+        <h2>Filter Results</h2>
+        <select id="neighborhoods-select" name="neighborhoods" role="combobox" aria-label="select neighborhood" aria-haspopup="listbox" onchange="updateRestaurants()">
+          <option role="option" value="all">All Neighborhoods</option>
+        </select>
+        <select id="cuisines-select" name="cuisines" role="combobox" aria-label="select cuisine" aria-haspopup="listbox" onchange="updateRestaurants()">
+          <option role="option" value="all">All Cuisines</option>
+        </select>
+      </div>
+      <ul id="restaurants-list"></ul>
+    </section>
+  </main>
+
+ 
+  <script type="application/javascript" charset="utf-8" src="js/all.js"></script>
+  <script type="application/javascript" charset="utf-8" src="reg_sw.js"></script>
+  <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA0DpCPfxz8VsUXwOXLdpf7ydWezTYdibc&libraries=places&callback=initMap"></script>
+
+
+  <footer id="footer">
+    Copyright (c) 2017 <a href="/"><strong>Restaurant Reviews</strong></a> All Rights Reserved.
+  </footer>
+
+</body>
+
+</html>
