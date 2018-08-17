@@ -20,8 +20,11 @@
   <link rel="stylesheet" media="screen and (min-width: 1601px)" href="css/styles5.css"> -->
 
   <link rel="stylesheet" href="css/styles.css">
-  
   <link rel="manifest" href="/manifest.json">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   <title>Restaurant Info</title>
 </head>
 
@@ -52,9 +55,16 @@
     <!-- Beginning restaurant -->
     <section id="restaurant-container">
       <h1 id="restaurant-name"></h1>
-      <picture id="restaurant-pic">
-        
-      </picture>
+      
+      <div id="subcontainer">
+        <div class="top-left">
+          <span class="star glyphicon glyphicon-star-empty"></span>
+        </div>
+        <picture id="restaurant-pic">
+          
+        </picture>
+
+      </div>
       
       <p id="restaurant-cuisine"></p>
       <p id="restaurant-address"></p>
@@ -116,7 +126,7 @@
   <script type="application/javascript" charset="utf-8" src="js/restaurant_info.js"></script>
   <!-- registering server worker -->
   <script type="application/javascript" charset="utf-8" src="reg_sw.js"></script>
-
+  <script type="text/javascript" charset="utf-8" src="js/j.js"></script>
 
   <!-- Google Maps -->
   <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA_tKbW6A5pQ-eupxI56myUnHLqYCzOjKo&libraries=places&callback=initMap"></script>
@@ -187,6 +197,23 @@
 
     }
   </script>
+
+  <script type="text/javascript">
+    submitFav = (restaurant) => {
+      $.ajax({
+        'url':restaurant.action, 
+        'method': restaurant.method, 
+        'success': function(data) {
+          restaurant.active = false;
+          // remove the old entry
+          if (!restaurant.fav) {
+            DBHelper.deleteFav(restaurant);  
+          }
+        }
+      });
+    }
+  </script>
+
   <script id="updateWorker" type="text/javascript">
     let helper = DBHelper;
     let submit = submitForm;
@@ -206,6 +233,27 @@
       }, 60000, hh, ff);
     }
     check(helper, submit);
+
+  </script>
+
+  <script id="updateFav" type="text/javascript">
+    let helperf = DBHelper;
+    let submitf = submitFav;
+    check2 = (hh, ff) => {
+      
+      setInterval((h, f) => {
+        // get all records that are not save on the server
+        h.getFavorites(function(error, favorites) {
+          if (favorites && favorites.length > 0) {
+            favorites.forEach(function(favorite) {
+              f(favorite);
+            });
+          }
+        });
+        check2(h, f);
+      }, 30000, hh, ff);
+    }
+    check2(helperf, submitf);
 
   </script>
 
@@ -231,23 +279,7 @@
         event.target.style.display = "none";
       }
     }
-    // console.log('starting a worker');
-    // var worker = new Worker('js/task.js');
-
-    
-    // worker.addEventListener('message', function(e) {
-    //   // window.location.reload();
-    //   // I am going to remove all comments and reload them again from the local database
-    //   // once I save a comment
-    //   if (e.data == 'ui_update') {
-    //     document.getElementById('reviews-container').removeChild(document.getElementById('reviews-container').getElementsByTagName('h2')[0]);
-    //     document.getElementById('reviews-list').innerHTML = '';
-    //     fetchReviewsLocally((error, reviews) => {
-          
-    //     });  
-    //   }
-      
-    // }, false); 
+   
 
     console.log('starting another worker');
     var blob = new Blob([
@@ -262,6 +294,19 @@
       console.log('some message has been posted');
     });
     
+
+    console.log('starting update fav worker');
+    var favBlob = new Blob([
+      document.getElementById('updateFav').textContent
+      ], { type: "text/javascript" }
+    );
+
+    // Note: window.webkitURL.createObjectURL() in Chrome 10+.
+    var favWorker = new Worker(window.URL.createObjectURL(favBlob));
+    favWorker.postMessage('fav worker is running');
+    favWorker.addEventListener('message', function(e) {
+      console.log('some message has been posted');
+    });
 
   
 

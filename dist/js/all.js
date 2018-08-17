@@ -16,29 +16,20 @@ class DBHelper {
       return Promise.resolve();
     }
 
-    return idb.open('restaurant_reviews', 6, function(upgradeDb) {
+    return idb.open('restaurant_reviews', 7, function(upgradeDb) {
       var restaurants = upgradeDb.createObjectStore('restaurants', {
         keyPath: 'id'
       });
       var reviews = upgradeDb.createObjectStore('reviews', {
         keyPath: 'id'
       });
+
+      var reviews = upgradeDb.createObjectStore('favorites', {
+        keyPath: 'id'
+      });
       // temp_reviews.createIndex('by-date', 'date');
     });
   }
-
-  // static openDatabaseWorker() {
-  //   return idb.open('restaurant_reviews', 6, function(upgradeDb) {
-  //     var restaurants = upgradeDb.createObjectStore('restaurants', {
-  //       keyPath: 'id'
-  //     });
-  //     var reviews = upgradeDb.createObjectStore('reviews', {
-  //       keyPath: 'id'
-  //     });
-      
-  //     // temp_reviews.createIndex('by-date', 'date');
-  //   });
-  // }
 
   /**
    * Select all restaurants.
@@ -95,6 +86,95 @@ class DBHelper {
         // console.log(error);
       });
   }
+
+
+  /* experimental */
+  static saveFavorites(data) {
+    return DBHelper.openDatabase().then(function(db) {
+        if (!db) return;
+
+        var tx = db.transaction('favorites', 'readwrite');
+        var store = tx.objectStore('favorites');
+        data.forEach(function(restaurant) {
+          restaurant.fav = true;
+          restaurant.active = false;
+          restaurant.action = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=${restaurant.fav}`;
+          store.put(restaurant);
+        });
+      }).catch(function(error) {
+        // console.log('there is an error saving the data');
+        // console.log(error);
+    });
+  }
+
+  static saveFavorite(data) {
+    return DBHelper.openDatabase().then(function(db) {
+        if (!db) return;
+
+        var tx = db.transaction('favorites', 'readwrite');
+        var store = tx.objectStore('favorites');
+        var restaurant = data;
+        restaurant.id = parseInt(data.id);
+        restaurant.action = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=${restaurant.fav}`;
+        store.put(restaurant);
+      }).catch(function(error) {
+        // console.log('there is an error saving the data');
+        // console.log(error);
+    });
+  }
+
+  static getFavorites(callback) {
+    
+    return DBHelper.openDatabase().then(function(db) {
+      if (!db) return;
+
+      var objectStore = db.transaction('favorites')
+        .objectStore('favorites');
+
+      return objectStore.getAll().then(function (favorites) {
+        const fvs = favorites.filter(r => r.active);
+        console.log(fvs);
+        callback(null, fvs);
+      }).catch(function(error) {
+        callback(error, null);
+      });
+    });
+  };
+
+  static isFavorite(restaurant) {
+    return DBHelper.openDatabase().then(function(db) {
+        if (!db) return;
+        // 'http://localhost:1337/restaurants/?is_favorite=true'
+        var tx = db.transaction('favorites', 'readwrite');
+        var store = tx.objectStore('favorites');
+
+        return store.get(restaurant.id).then(function(rest) {
+          if (rest && rest.fav) {
+            console.log('is it really true');
+            return true;
+          }
+          return false;
+        }).catch(function(error) {
+            callback(error, null);
+        }); 
+
+    });
+  }
+
+  static deleteFav(restaurant) {
+    return DBHelper.openDatabase().then(function(db) {
+        if (!db) return;
+
+        var tx = db.transaction('favorites', 'readwrite');
+        var store = tx.objectStore('favorites');
+        store.delete(+restaurant.id);
+      }).catch(function(error) {
+        console.log('there is an error deleting the data');
+        console.log(error);
+      });
+  }
+
+  /* experimental */
   static saveReview(temp_review) {
     return DBHelper.openDatabase().then(function(db) {
         if (!db) return;
@@ -682,6 +762,24 @@ class DBHelper {
     self.idb = exp;
   }
 }());
+$(".star.glyphicon").click(function() {
+	
+  $(this).toggleClass("glyphicon-star glyphicon-star-empty");
+
+  let restaurant = {};
+  restaurant.id = getParameterByName('id');
+  restaurant.fav = !$(".star.glyphicon").first().attr('class').includes('empty');
+  restaurant.action = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=${restaurant.fav}`;
+  restaurant.active = true;
+  restaurant.method = "PUT";
+  DBHelper.saveFavorite(restaurant);
+
+  console.log(!$(".star.glyphicon").first().attr('class').includes('empty'));
+  console.log('push button');
+});
+
+
+
 /* 
    This and other work files are based on Udacity Mobile Web Developer Nano degree program  
    many thanks to the whole internet especially StackOverflow which contained solutions to many of my problems. 
@@ -917,8 +1015,16 @@ collectData = () => {
       });    
     }
   });
-  
 
+  DBHelper.getFavorites(function(restaurants) {
+    if (!restaurants) {
+      fetch('http://localhost:1337/restaurants/?is_favorite=true').then(function(response) {
+        response.text().then(function(text) {
+          DBHelper.saveFavorites(JSON.parse(text));
+        });
+      });
+    }
+  });
 };
 
 
@@ -1044,6 +1150,15 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
 
+  // TODO I should check the database if the resturant is favorit or not here
+  // const fav = document.getElementsByClassName('.star.glyphicon')[0];
+  var favorite = DBHelper.isFavorite(restaurant).then(function(fav) {
+    if (!$(".star.glyphicon").first().attr('class').includes('empty') != fav) {
+      $(".star.glyphicon").first().toggleClass("glyphicon-star glyphicon-star-empty");
+    }
+  });
+  
+
   const picture = document.getElementById('restaurant-pic');
   picture.className = 'restaurant-img'; // this might change
   // add more sources to the picture element, new source, add src
@@ -1110,6 +1225,8 @@ fillReviewsHTML = (reviews = self.reviews) => {
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
+
+
 
   if (!reviews) {
     const noReviews = document.createElement('p');
@@ -1369,76 +1486,3 @@ updateUI2 = () => {
 }
 
 
-
-/* 
-   This and other work files are based on Udacity Mobile Web Developer Nano degree program  
-   many thanks to the whole internet especially StackOverflow which contained solutions to many of my problems. 
-   I've customized those techniques to work on this project.
- */
-
-importScripts('idb.js', 'dbhelper.js');
-
-// submit = (data, document) => {
-//   console.log('the submit function is running...');
-//   let resturant_id = document.createElement('input');
-//   let reveiw_id = document.createElement('input');
-//   let name = document.createElement('input');
-//   let rate = document.createElement('input');
-//   let comments = document.createElement('input');
-
-//   resturant_id.value = document.getElementById('resturant_id').value;
-//   review_id.vaue = document.getElementById('review_id').value;
-//   name.value = document.getElementById('i_name').value;
-//   rate.value = document.getElementById('i_rating').value;
-//   comments.value = document.getElementById('i_comments').value;
-
-
-//   let form  = document.createElement('form');
-//   form.appendChild(resturant_id);
-//   form.appendChild(review_id);
-//   form.appendChild(name);
-//   form.appendChild(rate);
-//   form.appendChild(comments);
-//   form.action = action;
-//   form.method = method;
-
-//   form.submit();
-
-// }
-
-
-self.onmessage = function (msg) {
-    
-	if (msg.data.status == 'new') {
-    DBHelper.saveReview(msg.data);  
-  } 
-
-  if (msg.data.status == 'update' || msg.data.status == 'delete') {
-    DBHelper.deleteReview(msg.data);
-    DBHelper.saveReview(msg.data);  
-    // I can delete and re-enter the record or update it.
-    // delete and re-insert with the correct status
-  }   
-	
-	// 3- trigger display comments again
-  self.postMessage('ui_update');
-	
-}
-
-
-
-self.onmessage = function (msg) {
-    
-}
-
-check = () => {
-	console.log(document);
-	setInterval(() => {
-		// get all records that are not save on the server
-		if (form) {
-			console.log(form);
-		}
-		check();
-	}, 500);
-}
-check();

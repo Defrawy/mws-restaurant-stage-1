@@ -114,6 +114,15 @@ fillRestaurantHTML = (restaurant = self.restaurant) => {
   const address = document.getElementById('restaurant-address');
   address.innerHTML = restaurant.address;
 
+  // TODO I should check the database if the resturant is favorit or not here
+  // const fav = document.getElementsByClassName('.star.glyphicon')[0];
+  var favorite = DBHelper.isFavorite(restaurant).then(function(fav) {
+    if (!$(".star.glyphicon").first().attr('class').includes('empty') != fav) {
+      $(".star.glyphicon").first().toggleClass("glyphicon-star glyphicon-star-empty");
+    }
+  });
+  
+
   const picture = document.getElementById('restaurant-pic');
   picture.className = 'restaurant-img'; // this might change
   // add more sources to the picture element, new source, add src
@@ -180,6 +189,8 @@ fillReviewsHTML = (reviews = self.reviews) => {
   const title = document.createElement('h2');
   title.innerHTML = 'Reviews';
   container.appendChild(title);
+
+
 
   if (!reviews) {
     const noReviews = document.createElement('p');

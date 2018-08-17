@@ -233,8 +233,16 @@ collectData = () => {
       });    
     }
   });
-  
 
+  DBHelper.getFavorites(function(restaurants) {
+    if (!restaurants) {
+      fetch('http://localhost:1337/restaurants/?is_favorite=true').then(function(response) {
+        response.text().then(function(text) {
+          DBHelper.saveFavorites(JSON.parse(text));
+        });
+      });
+    }
+  });
 };
 
 

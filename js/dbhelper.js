@@ -16,29 +16,20 @@ class DBHelper {
       return Promise.resolve();
     }
 
-    return idb.open('restaurant_reviews', 6, function(upgradeDb) {
+    return idb.open('restaurant_reviews', 7, function(upgradeDb) {
       var restaurants = upgradeDb.createObjectStore('restaurants', {
         keyPath: 'id'
       });
       var reviews = upgradeDb.createObjectStore('reviews', {
         keyPath: 'id'
       });
+
+      var reviews = upgradeDb.createObjectStore('favorites', {
+        keyPath: 'id'
+      });
       // temp_reviews.createIndex('by-date', 'date');
     });
   }
-
-  // static openDatabaseWorker() {
-  //   return idb.open('restaurant_reviews', 6, function(upgradeDb) {
-  //     var restaurants = upgradeDb.createObjectStore('restaurants', {
-  //       keyPath: 'id'
-  //     });
-  //     var reviews = upgradeDb.createObjectStore('reviews', {
-  //       keyPath: 'id'
-  //     });
-      
-  //     // temp_reviews.createIndex('by-date', 'date');
-  //   });
-  // }
 
   /**
    * Select all restaurants.
@@ -95,6 +86,95 @@ class DBHelper {
         // console.log(error);
       });
   }
+
+
+  /* experimental */
+  static saveFavorites(data) {
+    return DBHelper.openDatabase().then(function(db) {
+        if (!db) return;
+
+        var tx = db.transaction('favorites', 'readwrite');
+        var store = tx.objectStore('favorites');
+        data.forEach(function(restaurant) {
+          restaurant.fav = true;
+          restaurant.active = false;
+          restaurant.action = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=${restaurant.fav}`;
+          store.put(restaurant);
+        });
+      }).catch(function(error) {
+        // console.log('there is an error saving the data');
+        // console.log(error);
+    });
+  }
+
+  static saveFavorite(data) {
+    return DBHelper.openDatabase().then(function(db) {
+        if (!db) return;
+
+        var tx = db.transaction('favorites', 'readwrite');
+        var store = tx.objectStore('favorites');
+        var restaurant = data;
+        restaurant.id = parseInt(data.id);
+        restaurant.action = `http://localhost:1337/restaurants/${restaurant.id}/?is_favorite=${restaurant.fav}`;
+        store.put(restaurant);
+      }).catch(function(error) {
+        // console.log('there is an error saving the data');
+        // console.log(error);
+    });
+  }
+
+  static getFavorites(callback) {
+    
+    return DBHelper.openDatabase().then(function(db) {
+      if (!db) return;
+
+      var objectStore = db.transaction('favorites')
+        .objectStore('favorites');
+
+      return objectStore.getAll().then(function (favorites) {
+        const fvs = favorites.filter(r => r.active);
+        console.log(fvs);
+        callback(null, fvs);
+      }).catch(function(error) {
+        callback(error, null);
+      });
+    });
+  };
+
+  static isFavorite(restaurant) {
+    return DBHelper.openDatabase().then(function(db) {
+        if (!db) return;
+        // 'http://localhost:1337/restaurants/?is_favorite=true'
+        var tx = db.transaction('favorites', 'readwrite');
+        var store = tx.objectStore('favorites');
+
+        return store.get(restaurant.id).then(function(rest) {
+          if (rest && rest.fav) {
+            console.log('is it really true');
+            return true;
+          }
+          return false;
+        }).catch(function(error) {
+            callback(error, null);
+        }); 
+
+    });
+  }
+
+  static deleteFav(restaurant) {
+    return DBHelper.openDatabase().then(function(db) {
+        if (!db) return;
+
+        var tx = db.transaction('favorites', 'readwrite');
+        var store = tx.objectStore('favorites');
+        store.delete(+restaurant.id);
+      }).catch(function(error) {
+        console.log('there is an error deleting the data');
+        console.log(error);
+      });
+  }
+
+  /* experimental */
   static saveReview(temp_review) {
     return DBHelper.openDatabase().then(function(db) {
         if (!db) return;
