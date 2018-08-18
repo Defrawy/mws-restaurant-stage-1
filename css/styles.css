@@ -11,7 +11,7 @@ body,td,th,p{
 }
 body {
   background-color: #fdfdfd;
-  margin: 0;
+  margin: auto;
   position:relative;
 }
 ul, li {
@@ -75,7 +75,7 @@ nav h1 a {
     background-color: #eee;
     font-size: 17px;
     margin: 0;
-    width: 95%;
+    width: 100%;
     padding: 10px 0px 10px 5%;
 
 }
@@ -364,7 +364,7 @@ select:hover, select:focus {
     width: calc(25% - 94px);
   }
   body {
-    max-width: 70%;
+    max-width: 90%;
     margin: auto;
     height: auto;
   }
@@ -402,6 +402,9 @@ select:hover, select:focus {
   height: 100%;
 }
 
+.inside {
+  margin: auto;
+}
 /*.inside .menu {
   background-color: #444;
   font-size: 10pt;
